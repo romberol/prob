@@ -26,8 +26,8 @@ observation probably belongs to by using the Bayes formula:
 $$\mathsf{P}(\mathrm{class}\mid \mathrm{observation})=\frac{\mathsf{P}(\mathrm{observation}\mid\mathrm{class})\mathsf{P}(\mathrm{class})}{\mathsf{P}(\mathrm{observation})}$$
 
 Under the strong independence assumption, one can calculate
-$\mathsf{P}(\mathrm{observation} \mid \mathrm{class})$ as
-$$\mathsf{P}(\mathrm{observation}) = \prod_{i=1}^{n} \mathsf{P}(\mathrm{feature}_i), \qquad \mathsf{P}(\mathrm{observation} \mid \mathrm{class}) = \prod_{i=1}^{n} \mathsf{P}(\mathrm{feature}_i \mid \mathrm{class}),$$
+$$\mathsf{P}(\mathrm{observation} \mid \mathrm{class})$$ as
+$$\mathsf{P}(\mathrm{observation}) = \prod_{i=1}^{n} \mathsf{P}(\mathrm{feature_i}), \qquad \mathsf{P}(\mathrm{observation} \mid \mathrm{class}) = \prod_{i=1}^{n} \mathsf{P}(\mathrm{feature}_i \mid \mathrm{class})$$
 where $n$ is the total number of features describing a given
 observation. Thus, $\mathsf{P}(\mathrm{class}|\mathrm{observation})$ now
 can be calculated as
