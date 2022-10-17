@@ -232,7 +232,9 @@ naiveBayes <- setRefClass("naiveBayes",
                         for (word_ind in seq_along(splited_words)){
                           if (!splited_words[word_ind] %in% splitted_stop_words){
                             # prob <- prob * data[splited_words[word_ind], ][[i]] / sum(data[i])
-                            prob <- prob * data[splited_words[word_ind], ][[i]]
+                            if (!is.na(data[splited_words[word_ind], ][[i]])){
+                                prob <- prob * data[splited_words[word_ind], ][[i]]
+                            }
                           }
                         }
                         results[i] <- prob
@@ -262,8 +264,8 @@ naiveBayes <- setRefClass("naiveBayes",
 
 model <- naiveBayes()
 model$fit(X, y)
-# b <- model$predict("o'clock")
-b <- model$score(X_train, y_test)
+# b <- model$predict("ten or twenty maouths or trunks a stickin' aout all along the sides, big as stovepipes, an' all a tossin' an' openin' an' shuttin' . . .")
+b <- model$score(X_test, y_test)
 b
 ```
 
