@@ -221,7 +221,7 @@ naiveBayes <- setRefClass("naiveBayes",
                     # return prediction for a single message 
                     predict = function(message)
                     {
-                      message <- gsub("[[:punct:]]", "", tolower(message))
+                      message <- gsub("[^'[:^punct:]]", "", tolower(message), perl = T)
                       splited_words <- strsplit(message, split=" ")[[1]]
                       results <- seq_along(labels)
                       # match(max(a), a) - argmax
@@ -262,8 +262,8 @@ naiveBayes <- setRefClass("naiveBayes",
 
 model <- naiveBayes()
 model$fit(X, y)
-b <- model$predict("In that palace there were also many galleries, and many amphitheatres where lions and men and elephants battled at the pleasure of the kings.")
-# b <- model$score(X_test, y_test)
+# b <- model$predict("o'clock")
+b <- model$score(X_train, y_test)
 b
 ```
 
