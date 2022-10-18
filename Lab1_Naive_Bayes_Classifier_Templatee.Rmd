@@ -168,23 +168,26 @@ words <- data.frame(words[, -1], row.names = words$splitted) #words are indexes
 head(words)
 ```
 ```{r}
-#visualization
+#visualization of top-used words among authors
 library(ggplot2)
 library(reshape2)
 
-top10 <- head(words[order(words$Edgar.Alan.Poe, decreasing = TRUE),], 10)
-
-top10<- cbind(rownames(top10), top10)
-rownames(top10)<-NULL
-colnames(top10) <- c("word", "Edgar.Alan.Poe", "HP.Lovecraft", "Mary.Wollstonecraft.Shelley.")
-
-df1 = melt(top10, "word")
-df1%>%ggplot(aes(x=word, y=value)) +
+for(i in 1:ncol(words)){
+  #View(words[i])
+  #words1 <- words[order(words[i], decreasing = TRUE),]
+  #words[order(words[,3], decreasing = TRUE),]
+  top10 <- head(words[order(words[,i], decreasing = TRUE), ], 10)
+  top10<- cbind(rownames(top10), top10)
+  rownames(top10)<-NULL
+  colnames(top10) <- c("word", "Edgar.Alan.Poe", "HP.Lovecraft", "Mary.Wollstonecraft.Shelley.")
+  dfi <- melt(top10, "word")
+  print(dfi%>%ggplot(aes(x=word, y=value)) +
   geom_bar(aes(fill=variable),stat="identity", position ="dodge") + 
   theme_bw()+ 
-  theme(axis.text.x = element_text(angle=-40, hjust=.1))
-#hist(edgar_top10$Edgar.Alan.Poe)#, xlim = c(0, 3), breaks = 9,
-     #main = "Edgar Alan Poe's most used", xlab = "bla", col="red")
+  theme(axis.text.x = element_text(angle=-40, hjust=.1)))
+  
+}
+
 ```
 
 
