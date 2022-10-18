@@ -153,7 +153,10 @@ test <-  read.csv(file = test_path, stringsAsFactors = FALSE)
 
 ```{r}
 # note the power functional features of R bring us! 
-tidy_text <- unnest_tokens(train, 'splitted', 'text', token="words") %>%
+message <- "hello my name is matthew how are you"
+(grep("(\\w+\\s\\w+)", message, value = TRUE))
+train$text<- gsub("[^'[:^punct:]]", "", tolower(train$text), perl = T)
+tidy_text <- unnest_tokens(train, 'splitted', 'text', token="regex", pattern="(\\w+\\s\\w+)") %>%
              filter(!splitted %in% splitted_stop_words)
 
 words <- tidy_text %>%
@@ -265,7 +268,7 @@ naiveBayes <- setRefClass("naiveBayes",
                         results[i] <- prob
                       }
 
-                      return(names(labels)[match(max(results), results)])
+                      return(match(max(results), results))
                       # return(results)
                     },
                     
@@ -455,16 +458,17 @@ b
 
 ```
 ```{r}
-msg <- "Hello, my name is Matthew. It's nice to meet you"
-msg <- gsub("[^'[:^punct:]]", "", tolower(msg), perl = T)
-splt_msg <- strsplit(msg, split=" ")[[1]]
-msg_df <- data.frame(splt_msg)
-msg_df
-stop_words
-names(msg_df)[names(msg_df) == 'splt_msg'] <- 'word'
-msg_df
-names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
-anti_join(msg_df, stop_words)
+# testing
+#msg <- "Hello, my name is Matthew. It's nice to meet you"
+#msg <- gsub("[^'[:^punct:]]", "", tolower(msg), perl = T)
+#splt_msg <- strsplit(msg, split=" ")[[1]]
+#msg_df <- data.frame(splt_msg)
+#msg_df
+#stop_words
+#names(msg_df)[names(msg_df) == 'splt_msg'] <- 'word'
+#msg_df
+#names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
+#anti_join(msg_df, stop_words)
 ```
 
 
