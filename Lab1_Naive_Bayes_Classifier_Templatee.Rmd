@@ -167,6 +167,28 @@ words <- data.frame(words[, -1], row.names = words$splitted) #words are indexes
 # count(train, author)
 head(words)
 ```
+```{r}
+#visualization
+library(ggplot2)
+library(reshape2)
+
+par(mfrow=c(3, 1))
+top10 <- head(words[order(words$Edgar.Alan.Poe, decreasing = TRUE),], 10)
+
+top10<- cbind(rownames(top10), top10)
+rownames(top10)<-NULL
+colnames(top10) <- c("word", "Edgar.Alan.Poe", "HP.Lovecraft", "Mary.Wollstonecraft.Shelley.")
+
+df1 = melt(top10, "word")
+df1
+df1%>%ggplot(aes(x=word, y=value)) +
+  geom_bar(aes(fill=variable),stat="identity", position ="dodge") + 
+  theme_bw()+ 
+  theme(axis.text.x = element_text(angle=-40, hjust=.1))
+#hist(edgar_top10$Edgar.Alan.Poe)#, xlim = c(0, 3), breaks = 9,
+     #main = "Edgar Alan Poe's most used", xlab = "bla", col="red")
+```
+
 
 ### Data visualization
 
@@ -180,6 +202,7 @@ y <- train[length(train)]
 X_test <- test[, -length(test)]
 y_test <- test[length(test)]
 ```
+
 
 ## Classifier implementation
 
@@ -224,10 +247,8 @@ naiveBayes <- setRefClass("naiveBayes",
                       message <- gsub("[^'[:^punct:]]", "", tolower(message), perl = T)
                       splited_words <- strsplit(message, split=" ")[[1]]
                       results <- seq_along(labels)
-                      View(lables)
-                      View(results)
                       # match(max(a), a) - argmax
-                      for (i in seq_along(results)){
+                      for (i in results){
                         prob <- 1
                         prob <- prob *labels[[i]]
                         # prob <- prob * labels[[i]]
@@ -278,7 +299,7 @@ naiveBayes2 <- setRefClass("naiveBayes2",
        # here it would be wise to have some vars to store intermediate result
        # frequency dict etc. Though pay attention to bag of wards!
        fields = list(
-         data = "data.frame",
+         data1 = "data.frame",
          labels = "table"
        ),
        methods = list(
@@ -307,7 +328,7 @@ naiveBayes2 <- setRefClass("naiveBayes2",
                         #for(i in 1:3){
                          # words[i] <- words[i]/sum(words[i])
                         #}
-                        data <<- words
+                        data1 <<- words
                     },
                     
                     # return prediction for a single message 
@@ -315,22 +336,33 @@ naiveBayes2 <- setRefClass("naiveBayes2",
                     {
                       message <- gsub("[^'[:^punct:]]", "", tolower(message), perl = T)
                       splited_words <- strsplit(message, split=" ")[[1]]
+                      msg_df <- data.frame(splited_words)
+                      colnames(msg_df)<-c('splitted')
+                      #names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
+                      #View(msg_df)
+                      #View(stop_words)
+                      
+                      unnest_tokens(msg_df, splitted, splitted)%>% anti_join(stop_words, by=c("splitted" = "word"))
+                      
+                      
                       results <- seq_along(labels)
-                      View(lables)
-                      View(results)
                       # match(max(a), a) - argmax
-                      for (i in seq_along(results)){
+                      for (i in results){
                         prob <- 1
                         prob <- prob *labels[[i]]
                         # prob <- prob * labels[[i]]
-                        for (word_ind in seq_along(splited_words)){
-                          if (!splited_words[word_ind] %in% splitted_stop_words){
+                        #names(msg_df)[names(msg_df) == 'slpitted'] <- i
+                        inner_join(msg_df, rename_at(data1, 1, names(msg_df)[1]), by=names(msg_df)[1])
+                        p <- apply(msg_df[2], 2, prod)
+                        prob <- prob*p
+                        #for (word_ind in seq_along(splited_words)){
+                         # if (!splited_words[word_ind] %in% splitted_stop_words){
                             # prob <- prob * data[splited_words[word_ind], ][[i]] / sum(data[i])
-                            if (!is.na(data[splited_words[word_ind], ][[i]])){
-                                prob <- prob * data[splited_words[word_ind], ][[i]]
-                            }
-                          }
-                        }
+                        #    if (!is.na(data[splited_words[word_ind], ][[i]])){
+                         #       prob <- prob * data[splited_words[word_ind], ][[i]]
+                          #  }
+                        #  }
+                        #}
                         results[i] <- prob
                       }
 
@@ -362,6 +394,18 @@ model$fit(X, y)
 b <- model$score(X_test, y_test)
 b
 
+```
+```{r}
+msg <- "Hello, my name is Matthew. It's nice to meet you"
+msg <- gsub("[^'[:^punct:]]", "", tolower(msg), perl = T)
+splt_msg <- strsplit(msg, split=" ")[[1]]
+msg_df <- data.frame(splt_msg)
+msg_df
+stop_words
+names(msg_df)[names(msg_df) == 'splt_msg'] <- 'word'
+msg_df
+names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
+anti_join(msg_df, stop_words)
 ```
 
 
