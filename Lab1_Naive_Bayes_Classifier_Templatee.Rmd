@@ -153,16 +153,8 @@ test <-  read.csv(file = test_path, stringsAsFactors = FALSE)
 ```
 
 ```{r}
-<<<<<<< HEAD
-# note the power functional features of R bring us! 
-message <- "hello my name is matthew how are you"
-(grep("(\\w+\\s\\w+)", message, value = TRUE))
-train$text<- gsub("[^'[:^punct:]]", "", tolower(train$text), perl = T)
-tidy_text <- unnest_tokens(train, 'splitted', 'text', token="regex", pattern="(\\w+\\s\\w+)") %>%
-=======
 # note the power functional features of R bring us!
 tidy_text <- unnest_tokens(train, 'splitted', 'text', token="words") %>%
->>>>>>> 7005050ca5b3a3ca42802f29f151eaf0ca50339f
              filter(!splitted %in% splitted_stop_words)
 words <- tidy_text %>%
   count(splitted,sort=TRUE, author) %>%
@@ -192,10 +184,6 @@ for(i in 1:ncol(words)){
   geom_bar(aes(fill=variable),stat="identity", position ="dodge") +
   theme_bw()+
   theme(axis.text.x = element_text(angle=-40, hjust=.1)))
-<<<<<<< HEAD
-}
-=======
->>>>>>> 7005050ca5b3a3ca42802f29f151eaf0ca50339f
 
 }
 ```
@@ -257,13 +245,7 @@ naiveBayes <- setRefClass("naiveBayes",
                         }
                         results[i] <- prob
                       }
-<<<<<<< HEAD
-
                       return(match(max(results), results))
-                      # return(results)
-=======
-                      return(match(max(results), results))
->>>>>>> 7005050ca5b3a3ca42802f29f151eaf0ca50339f
                     },
                     
                     # score you test set so to get the understanding how well you model
@@ -330,161 +312,6 @@ autoplot(conf_mat(predictions, author, predicted), type = "heatmap") +
   scale_fill_gradient(low="#D6EAF8",high = "#2E86C1") +
   theme(legend.position = "right")
 ```
-<<<<<<< HEAD
-
-```{r}
-#using built-in stop-words
-naiveBayes2 <- setRefClass("naiveBayes2",
-                          
-       # here it would be wise to have some vars to store intermediate result
-       # frequency dict etc. Though pay attention to bag of wards!
-       fields = list(
-         data1 = "data.frame",
-         labels = "table"
-       ),
-       methods = list(
-                    # prepare your training data as X - bag of words for each of your
-                    # messages and corresponding label for the message encoded as 0 or 1 
-                    # (binary classification task)
-                    fit = function(X, y)
-                    {
-                        labels <<- table(y) / sum(table(y))
-                        X <- cbind(X, y)
-                        names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
-                        tidy_text <- unnest_tokens(X, 'splitted', 'text', token="words") %>%
-                          anti_join(stop_words)  #get rid of stop_words using built-in df and function anti_join
-
-                        words <- tidy_text %>%
-                          count(splitted,sort=TRUE, author) %>%
-                          # pivot_wider(names_from = splitted, values_from = n, names_repair="minimal")
-                          pivot_wider(names_from = author, values_from = n)
-
-                        #test
-                        words[is.na(words)] <- 0; # replaces na with 0
-                        words[, 2:length(words)] <- words[, 2:length(words)]+1 # add ones
-                        #words <- data.frame(words[, -1], row.names = words$splitted)
-                        words <- words %>% mutate_at(vars(2:4), funs(./sum(.)))
-                        #View(words)
-                        #for(i in 1:3){
-                         # words[i] <- words[i]/sum(words[i])
-                        #}
-                        data1 <<- words
-                    },
-                    
-                    # return prediction for a single message 
-                    predict = function(message)
-                    {
-                      msg_df = data.frame(message)
-                      msg_df <- unnest_tokens(msg_df, 'word', 'message',
-                                              token="words")%>%anti_join(stop_words)
-                      #message <- gsub("[^'[:^punct:]]", "", tolower(message), perl = T)
-                      #splited_words <- strsplit(message, split=" ")[[1]]
-                      #msg_df <- data.frame(splited_words)
-                      #colnames(msg_df)<-c('splitted')
-                      #print(msg_df$splitted)
-                      #names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
-                      #View(msg_df)
-                      #View(stop_words)
-                      #msg_df%>% anti_join(stop_words, by=c("splitted"="word"))
-                      
-                      results <- seq_along(labels)
-                      # match(max(a), a) - argmax
-                      #data1 <- cbind(rownames(data1), data1)
-                       # rownames(data1) <- NULL
-                        #colnames(data1) <- c("word","Mary.Wollstonecraft.Shelley.",
-                         #                "Edgar.Alan.Poe", "HP.Lovecraft"
-                      
-                      
-                      for (i in results){
-                        prob <- 1
-                        prob <- prob *labels[[i]]
-                        # prob <- prob * labels[[i]]
-                        #names(msg_df)[names(msg_df) == 'slpitted'] <- i
-                        #View(msg_df)
-                        
-                        
-                        msg_df <- msg_df%>%inner_join(data1,by=c("word"="splitted"))
-                        
-                        p <- apply(msg_df[2], 2, prod)
-                        prob <- prob*p
-                        #for (word_ind in seq_along(splited_words)){
-                         # if (!splited_words[word_ind] %in% splitted_stop_words){
-                            # prob <- prob * data[splited_words[word_ind], ][[i]] / sum(data[i])
-                        #    if (!is.na(data[splited_words[word_ind], ][[i]])){
-                         #       prob <- prob * data[splited_words[word_ind], ][[i]]
-                          #  }
-                        #  }
-                        #}
-                        results[i] <- prob
-                      }
-
-                      return(names(labels)[match(max(results), results)])
-                      # return(results)
-                    },
-                    
-                    # score you test set so to get the understanding how well you model
-                    # works.
-                    # look at f1 score or precision and recall
-                    # visualize them 
-                    # try how well your model generalizes to real world data! 
-                    score = function(X_test, y_test) #
-                    {
-                      correct <- 0
-                      for(i in seq_along(X_test$text)){
-                        if (predict(X_test$text[i])==y_test$author[i]){
-                          correct <- correct + 1
-                        }
-                      }
-                      return(correct / length(X_test$text))
-
-                    },
-                    list_of_predictions = function(X_test, y_test)
-                    #   Returns dataframe, where first column is labels, second is predicted values
-                    #   Used to calculate confusion matrix
-                    {
-                      result <- data.frame(matrix(0, nrow=length(X_test$text), ncol=1))
-                      colnames(result) <- c("predicted")
-                      for (i in 1:3){
-                        y_test$author[y_test$author == names(labels)[i]] <- i
-                      }
-                      result["predicted"] <- apply(X_test["text"], 1, FUN=.self$predict)
-                      y_test$author <- as.factor(y_test$author)
-                      result$predicted <- as.factor(result$predicted)
-                      # return(confusionMatrix(y_test$author, result$predicted))
-                      return(cbind(y_test, result))
-                    }
-))
-
-model <- naiveBayes2()
-model$fit(X, y)
-# b <- model$predict("ten or twenty maouths or trunks a stickin' aout all along the sides, big as stovepipes, an' all a tossin' an' openin' an' shuttin' . . .")
-b <- model$list_of_predictions(X_test, y_test)
-b
-
-```
-```{r}
-# testing
-#msg <- "Hello, my name is Matthew. It's nice to meet you"
-#msg <- gsub("[^'[:^punct:]]", "", tolower(msg), perl = T)
-#splt_msg <- strsplit(msg, split=" ")[[1]]
-#msg_df <- data.frame(splt_msg)
-#msg_df
-#stop_words
-#names(msg_df)[names(msg_df) == 'splt_msg'] <- 'word'
-#msg_df
-#names(stop_words)[names(stop_words) == 'word'] <- 'splitted'
-#anti_join(msg_df, stop_words)
-```
-
-
-## Measure effectiveness of your classifier
--   Note that accuracy is not always a good metric for your classifier.
-    Look at precision and recall curves, F1 score metric.
--   Visualize them.
--   Show failure cases.
-
-=======
->>>>>>> 7005050ca5b3a3ca42802f29f151eaf0ca50339f
 ## Conclusions
 
 Summarize your work by explaining in a few sentences the points listed
@@ -495,3 +322,7 @@ below.
 -   List pros and cons of the method. This should include the
     limitations of your method, all the assumption you make about the
     nature of your data etc.
+    
+    We implemented a Native Bayers Classifier that makes predictions about the author of a given text. The calculation is based on the Bayes formula, where we assume that each word in a sentence is an independent feature. The accuracy of the model is 83.40143%, which we consider good given that we have three labels (authors). The model could be improved by taking into account common root words and synonyms and using n-grams. The main drawback of the model is that we consider every word separately, without taking into account language formation/rules, etc...
+    Another approach would be to form a bag of words that consists of pairs of words. This way, we could approximately estimate the context of the phrases and note some patterns, which could increase the accuracy of the model's prediction.
+    
